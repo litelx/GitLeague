@@ -114,6 +114,8 @@ class UpdateGroupView(LoggedInMixin, UpdateView):
     page_title = 'Edit group'
     form_class = GroupForm
     model = Group
+    template_name = "core/group_edit.html"
+
     success_url = reverse_lazy('core:list')
 
     def get_object(self, queryset=None):
