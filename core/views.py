@@ -2,12 +2,14 @@ import datetime
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
 from django.core.urlresolvers import reverse_lazy
-from django.http.response import HttpResponseRedirect
+from django.http.response import HttpResponseRedirect, HttpResponse
 from django.shortcuts import redirect, render
 from django.utils.encoding import escape_uri_path
 from django.views.generic import View
 from django.views.generic.edit import FormView, UpdateView
 from django.views.generic.list import ListView
+from django_extensions.db.fields import json
+
 from core.forms import *
 from core.github_content import *
 from core.models import *
@@ -260,6 +262,43 @@ class UserDataListView(LoggedInMixin, ListView):
 class AddUserView(LoggedInMixin, View):
 
     def post(self, request, *args, **kwargs):
-        assert False, (kwargs['pk'], request.POST.get('username'))
+
+        if request.POST.get('username'):
+            user_name = request.POST.get('username')
+            exist = GitUser.objects.filter(username=user_name)
+            if exist:
+                # if self.request.user in exist[0].user:
+                messages.error(self.request, 'The github user "{}" is already in database. Please add another github user.'.format(user_name))
+                return HttpResponse(
+                    json.dumps({"1": "this isn't happening"}),
+                    content_type="application/json"
+                )
+
+                # return HttpResponseRedirect(self.request.META.get('HTTP_REFERER'))
+            if is_git_user(user_name):
+                i = add_user_data(user_name)
+                # gu = GitUser.objects.filter(username=user_name)
+                # gu.email = i[1]
+                # gu.user.add(self.request.user)
+                # messages.success(self.request, 'A new git user has been recorded with {} commits'.format(i[0]))
+                return HttpResponse(
+                    json.dumps({"remove2": "this isn't happening"}),
+                    content_type="application/json"
+                )
+            else:
+                messages.error(self.request, 'There is no github user with username "{}". Sorry, try again'.format(user_name))
+                # return HttpResponseRedirect(self.request.META.get('HTTP_REFERER'))
+                return HttpResponse(
+                    json.dumps({"3": "this isn't happening"}),
+                    content_type="application/json"
+                )
+        return HttpResponse(
+            json.dumps({"4": "this isn't happening"}),
+            content_type="application/json"
+        )
+
+
+
+        # assert False, (kwargs['pk'], request.POST.get('username'))
 
 

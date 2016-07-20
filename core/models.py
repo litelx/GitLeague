@@ -9,7 +9,7 @@ class GitUser(models.Model):
                               related_name='user',
                               verbose_name=_("user"))
     username = models.CharField(_('username'), max_length=40)
-    email = models.EmailField(_('EMail'))
+    email = models.EmailField(_('EMail'), null=True, blank=True)
 
     def __str__(self):
         return self.username

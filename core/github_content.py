@@ -19,24 +19,28 @@ def add_user_data(user_name):
     email = g.get_user(user_name).email
     if email == "None":
         email = ""
-    i = 0
+    commits = 0
 
     to_delete = Data.objects.filter(gitUser=GitUser.objects.filter(username=user_name))
     if to_delete.count() != 0:
         delete_user_data(user_name)
 
-    git_user_record = GitUser.objects.filter(username=user_name)[0]
+    git_record = GitUser(username=user_name, email=email)
+    git_record.full_clean()
+    git_record.save()
+
+    # git_user_record = GitUser.objects.filter(username=user_name)[0]
     for event in events:
         if event.type == "PushEvent":
-            i += 1
-            record = Data(gitUser=git_user_record, event_type="Commit",
+            commits += 1
+            record = Data(gitUser=git_record, event_type="Commit",
                           created_at=event.created_at, repository=event.repo.name,
                           description=event.payload['commits'][0]['message'])
             record.full_clean()
             record.save()
-        if i == 50:
+        if commits == 50:
             break
-    return i, email
+    return commits, email
 
 
 def delete_user_data(user_name):
