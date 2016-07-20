@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% load bootstrap3 %}
+
+{% block content %}
+    {% if object_list.count %}
+        <table class="table table-bordered table-striped">
+            <thead>
+                <tr>
+                    <th>Group name</th>
+                    <th>Admin name</th>
+                    <th>Last updated</th>
+                    <th>Members</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for object in object_list %}
+                    <tr>
+                        <td>
+                            <a href="users_data/{{ object.id }}">
+                                {{ object.name }}
+                            </a>
+                        </td>
+                        <td>{{ object.admin }}</td>
+                        <td>{{ object.created_at }}</td>
+                        <td>{{ object.git_users.count }}</td>
+                        <td>
+                            <a href='delete_group/{{ object.id }}'>Delete</a>,
+                            <a href='{{ object.get_absolute_url }}'>edit</a>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        No groups.... yet!
+    {% endif %}
+    <a href="{% url "core:add" %}">+ Add new group</a>
+{% endblock %}

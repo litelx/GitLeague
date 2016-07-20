@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% load bootstrap3 %}
+
+{% block content %}
+
+    <a href="{% url "core:u_list" %}">Git users</a>
+    &gt;
+    Edit a git user...
+
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        {% bootstrap_form form %}
+        {% buttons %}
+            <button type="submit" class="btn btn-primary">
+                Update user data
+            </button>
+        {% endbuttons %}
+    </form>
+
+{% endblock %}

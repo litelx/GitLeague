@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% load bootstrap3 %}
+
+{% block content %}
+    {% if object_list.count %}
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>Username</th>
+                    <th>User email</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for object in object_list %}
+                    <tr>
+                        <td>
+                            <a href="{{ object.get_absolute_url }}">
+                                {{ object.username }}
+                            </a>
+                        </td>
+                        <td>{{ object.email }}</td>
+                        <td><a href='delete_git_user/{{ object.id }}'>Delete</a></td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        No git users.... yet!
+    {% endif %}
+    <a href="{% url "core:add_git" %}">+ Add new git user</a>
+{% endblock %}

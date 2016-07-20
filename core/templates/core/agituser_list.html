@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% load bootstrap3 %}
+
+{% block content %}
+
+{#    <a href='last_5_commits/{{ object.pk }}'> last 5 commits</a>#}
+    {% if object_list.count %}
+        <table class="table table-bordered table-striped">
+            <thead>
+                <tr>
+                    <th>User name</th>
+                    <th>Created at</th>
+                    <th>repository</th>
+                    <th>Message</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for object in object_list %}
+                    <tr>
+                        <td>
+                            <a href='/'>
+                                {{ object.gitUser }}
+                            </a>
+                        </td>
+                        <td>{{ object.created_at }}</td>
+                        <td>{{ object.repository }}</td>
+                        <td>{{ object.description }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        No data.... yet!
+    {% endif %}
+    <a href="{% url "core:add_git" %}">+ Add new git user</a>
+{% endblock %}

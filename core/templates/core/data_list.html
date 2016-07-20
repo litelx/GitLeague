@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% load bootstrap3 %}
+
+{% block content %}
+        <form method="GET">
+            <select name="browse">
+                <option value="1">last 50 goup commits</option>
+                <option value="2">last 5 commits a user- not working</option>
+                <option value="3">top commit user</option>
+            </select>
+
+<input type="submit" value="Submit" />
+
+</form>
+    {% if object_list.count %}
+        <table class="table table-bordered table-striped">
+            <thead>
+                <tr>
+                    <th>User name</th>
+                    <th>Created at</th>
+                    <th>repository</th>
+                    <th>Message</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for object in object_list %}
+                    <tr>
+                        <td>
+                            <a href='/user_data/{{ object.gitUser.id }}'>
+                                {{ object.gitUser }}
+                            </a>
+                        </td>
+                        <td>{{ object.created_at }}</td>
+                        <td>{{ object.repository }}</td>
+                        <td>{{ object.description }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        No data.... yet!
+    {% endif %}
+    <a href="{% url "core:add_git" %}">+ Add new git user</a>
+{% endblock %}
