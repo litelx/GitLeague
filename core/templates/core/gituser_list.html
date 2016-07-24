@@ -20,6 +20,7 @@
                         </td>
                         <td>{{ object.email }}</td>
                         <td><a href='delete_git_user/{{ object.id }}'>Delete</a></td>
+                        <td><a href='/user_data/{{ object.id }}'>Commits</a></td>
                     </tr>
                 {% endfor %}
             </tbody>
