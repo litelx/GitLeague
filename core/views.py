@@ -263,15 +263,16 @@ class AddUserView(LoggedInMixin, View):
 
     def post(self, request, *args, **kwargs):
 
-        if request.POST.get('username'):
+        if request.method == 'POST': #.get('username'):
             user_name = request.POST.get('username')
             exist = GitUser.objects.filter(username=user_name)
+            messages.success(request, "Comments saved.")
+
             if exist:
-                # if self.request.user in exist[0].user:
+                # if <ctrl>self.request.user in exist[0].user:
                 messages.error(self.request, 'The github user "{}" is already in database. Please add another github user.'.format(user_name))
-                return HttpResponse(
-                    json.dumps({"1": "this isn't happening"}),
-                    content_type="application/json"
+                return HttpResponse(''
+                    # json.dumps({"1": "this isn't happening"}), content_type="application/json"
                 )
 
                 # return HttpResponseRedirect(self.request.META.get('HTTP_REFERER'))
@@ -281,20 +282,20 @@ class AddUserView(LoggedInMixin, View):
                 # gu.email = i[1]
                 # gu.user.add(self.request.user)
                 # messages.success(self.request, 'A new git user has been recorded with {} commits'.format(i[0]))
-                return HttpResponse(
-                    json.dumps({"remove2": "this isn't happening"}),
-                    content_type="application/json"
-                )
+                return HttpResponse('')
+                #     json.dumps({"remove2": "this isn't happening"}),
+                #     content_type="application/json"
+                # )
             else:
                 messages.error(self.request, 'There is no github user with username "{}". Sorry, try again'.format(user_name))
                 # return HttpResponseRedirect(self.request.META.get('HTTP_REFERER'))
-                return HttpResponse(
-                    json.dumps({"3": "this isn't happening"}),
-                    content_type="application/json"
+                return HttpResponse(''
+                    # json.dumps({"3": "this isn't happening"}),
+                    # content_type="application/json"
                 )
-        return HttpResponse(
-            json.dumps({"4": "this isn't happening"}),
-            content_type="application/json"
+        return HttpResponse(''
+            # json.dumps({"4": "this isn't happening"}),
+            # content_type="application/json"
         )
 
 
