@@ -3,23 +3,22 @@ from core import models
 from github import Github
 
 
-
 class Command(BaseCommand):
     help = "Updating git users data."
 
     def handle(self, *args, **options):
         g = Github(client_id='f9c6481ee856e215c0a0',
            client_secret='3d066e249bfe454bb30ca9102945d1cf247e6110')
-        for i in models.GitUser.username:
-            events = g.get_user(i).get_events()
+        for i in models.GitUser.objects.all():
+            events = g.get_user(i.username).get_events()
             commits = 0
 
-            to_delete = models.Data.objects.filter(gitUser=models.GitUser.objects.filter(username=i))
+            to_delete = models.Data.objects.filter(gitUser=models.GitUser.objects.filter(username=i.username))
             if to_delete.count() != 0:
                 for row in to_delete:
                     row.delete()
 
-            git_record = models.GitUser.objects.filter(username=i)[0]
+            git_record = models.GitUser.objects.filter(username=i.username)[0]
 
             for event in events:
                 if event.type == "PushEvent":
