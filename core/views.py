@@ -2,8 +2,8 @@ import datetime
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
 from django.core.urlresolvers import reverse_lazy
-from django.http.response import HttpResponseRedirect, HttpResponse
-from django.shortcuts import redirect, render
+from django.http.response import HttpResponseRedirect, HttpResponse, JsonResponse
+from django.shortcuts import redirect, render, get_object_or_404
 from django.utils.encoding import escape_uri_path
 from django.views.generic import View
 from django.views.generic.edit import FormView, UpdateView
@@ -94,7 +94,9 @@ class CreateGitUserView(LoggedInMixin, FormView):
         exist = GitUser.objects.filter(username=user_name)
         if exist:
             # if self.request.user in exist[0].user:
-            messages.error(self.request, 'The github user "{}" is already in database. Please add another github user.'.format(user_name))
+            messages.error(self.request,
+                           'The github user "{}" is already in database. Please add another github user.'.format(
+                               user_name))
             return HttpResponseRedirect(self.request.META.get('HTTP_REFERER'))
             # exist[0].user.add(self.request.user)
             # form.instance.user = self.request.user
@@ -107,7 +109,8 @@ class CreateGitUserView(LoggedInMixin, FormView):
             gu.user.add(self.request.user)
             messages.success(self.request, 'A new git user has been recorded with {} commits'.format(i[0]))
         else:
-            messages.error(self.request, 'There is no github user with username "{}". Sorry, try again'.format(user_name))
+            messages.error(self.request,
+                           'There is no github user with username "{}". Sorry, try again'.format(user_name))
             return HttpResponseRedirect(self.request.META.get('HTTP_REFERER'))
         return super().form_valid(form)
 
@@ -158,8 +161,8 @@ class GitUserListView(LoggedInMixin, ListView):
         context = super(GitUserListView, self).get_context_data(**kwargs)
         return context
 
-    # def get_queryset(self):
-    #     return super().get_queryset().filter(user=self.request.user)
+        # def get_queryset(self):
+        #     return super().get_queryset().filter(user=self.request.user)
 
 
 class DataListView(LoggedInMixin, ListView):
@@ -206,6 +209,14 @@ def delete_git_user(request, id):
     return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
 
+def delete_group_git_user(request, pk, id):
+    group = get_object_or_404(Group, pk=pk)
+    user = GitUser.objects.filter(id=id).first()
+    user.groups.delete(group)
+    messages.success(request, 'The github user was deleted successfully')
+    return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
+
 def last_50(id):
     users_data_list = Data.objects.filter(
         gitUser=Group.objects.get(id=id).git_users.all()[0])
@@ -226,7 +237,6 @@ def last_5_commits(id):
 
 
 def top_commit_user(id):
-
     q1 = '''
     SELECT id, gitUser_id, created_at, COUNT(description) as 'commits' FROM core_data GROUP BY gitUser_id, created_at
     '''
@@ -260,46 +270,30 @@ class UserDataListView(LoggedInMixin, ListView):
 
 
 class AddUserView(LoggedInMixin, View):
-
     def post(self, request, *args, **kwargs):
+        # if request.method == 'POST': #.get('username'):
+        group = get_object_or_404(Group, pk=kwargs['pk'])
+        user_name = request.POST.get('username')
 
-        if request.method == 'POST': #.get('username'):
-            user_name = request.POST.get('username')
-            exist = GitUser.objects.filter(username=user_name)
-            messages.success(request, "Comments saved.")
+        user = GitUser.objects.filter(username=user_name).first()
 
-            if exist:
-                # if <ctrl>self.request.user in exist[0].user:
-                messages.error(self.request, 'The github user "{}" is already in database. Please add another github user.'.format(user_name))
-                return HttpResponse(''
-                    # json.dumps({"1": "this isn't happening"}), content_type="application/json"
+        if user is None:
+
+            if not is_git_user(user_name):
+                return JsonResponse(
+                    {
+                        'message': 'There is no github user with username "{}". Sorry, try again'.format(user_name),
+                    },
+                    status=400,
                 )
 
-                # return HttpResponseRedirect(self.request.META.get('HTTP_REFERER'))
-            if is_git_user(user_name):
-                i = add_user_data(user_name)
-                # gu = GitUser.objects.filter(username=user_name)
-                # gu.email = i[1]
-                # gu.user.add(self.request.user)
-                # messages.success(self.request, 'A new git user has been recorded with {} commits'.format(i[0]))
-                return HttpResponse('')
-                #     json.dumps({"remove2": "this isn't happening"}),
-                #     content_type="application/json"
-                # )
-            else:
-                messages.error(self.request, 'There is no github user with username "{}". Sorry, try again'.format(user_name))
-                # return HttpResponseRedirect(self.request.META.get('HTTP_REFERER'))
-                return HttpResponse(''
-                    # json.dumps({"3": "this isn't happening"}),
-                    # content_type="application/json"
-                )
-        return HttpResponse(''
-            # json.dumps({"4": "this isn't happening"}),
-            # content_type="application/json"
-        )
+            user = GitUser(username=user_name)
+            user.full_clean()
+            user.save()
 
+        if not user.groups.filter(id=group.id).exists():
+            user.groups.add(group)
 
-
-        # assert False, (kwargs['pk'], request.POST.get('username'))
-
-
+        return JsonResponse({
+            'username': user_name,
+        })

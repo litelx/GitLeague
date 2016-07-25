@@ -17,5 +17,6 @@ urlpatterns = [
     url(r'^edit_git_user/(?P<pk>\d+)/$', views.UpdateGitUserView.as_view(), name="git_user"),
 
     url(r'^delete_group/(?P<id>\d+)/$', delete_group, name='delete_group'),
-    url(r'^git_users/delete_git_user/(?P<id>\d+)/$', delete_git_user, name='delete_git_user')
+    url(r'^git_users/delete_git_user/(?P<id>\d+)/$', delete_git_user, name='delete_git_user'),
+    url(r'^edit_group/(?P<pk>\d+)/delete_group_git_user/(?P<id>\d+)/$', delete_git_user, name='delete_git_user')
 ]
