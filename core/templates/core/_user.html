@@ -1,6 +1,6 @@
 {% load humanize %}
 
-<tr class="list-group-item">
+<tr>
     <td style="width: 150px;">
          <b>
             <a href='/user_data/{{ u.id }}'>{{ u }}</a>
@@ -10,6 +10,6 @@
         <strong>Email:</strong> <a href="/edit_git_user/{{ u.id }}">{{ u.email }}</a>
     </td>
     <td>
-        <a href='/edit_group/delete_user/{{ u.id }}/{{ object.pk }}' id="{{ u.id }}">Remove</a>
+        <a href='/edit_group/delete_user/{{ u.id }}/{{ object.pk }}'>Remove</a>
     </td>
 </tr>

@@ -297,4 +297,8 @@ class AddUserView(LoggedInMixin, View):
         if not user.groups.filter(id=group.id).exists():
             user.groups.add(group)
 
-        return JsonResponse({'username': user_name})
+        return JsonResponse({'username': user_name,
+                             'email': user.email,
+                             'id': user.pk,
+                             'pk': kwargs['pk'],
+                             })

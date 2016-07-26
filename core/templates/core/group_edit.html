@@ -18,11 +18,10 @@
     </form>
     <table class="table table-bordered table-striped">
         <tbody id="users">
-            <!--<ul class="list-group" >-->
                 {% for u in object.git_users.all %}
                     {% include "core/_user.html" %}
                 {% endfor %}
-
+            <tr id="xx"></tr>
         </tbody>
     </table>
     <form method="post" id="userform" action="{% url "core:add_user" object.id %}">

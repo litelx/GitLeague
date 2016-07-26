@@ -9,8 +9,15 @@ $(document).ready(function() {
                 username: $("#id_username").val()
             },
             success: function(data){
+                if(data.email == null)
+                    {data.email = 'None';}
                 // Check if already exists or new.
-                $("#users").append(data.username);
+                var txt1 = "<tr><td style=\"width: 150px;\"><b><a href='/user_data/"+data.id+"'>"+
+                data.username+"</a> </b> </td><td style=\"width: 250px;\"><strong>Email:</strong> "+
+                "<a href=\"/edit_git_user/"+data.id+"\">"+ data.email +"</a> </td><td>"+
+                "<a href='/edit_group/delete_user/"+data.id+"/"+data.pk+"'>Remove</a> </td></tr>";
+                $("#xx").before(txt1 );
+//                $("#users").append(data.username);
                 $("#id_username").val('');
             },
             error: function(){
@@ -19,6 +26,8 @@ $(document).ready(function() {
         });
         return false;
     });
+
+
 });
 
     /*
