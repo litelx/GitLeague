@@ -7,8 +7,7 @@
             <thead>
                 <tr>
                     <th>Group name</th>
-                    <th>Admin name</th>
-                    <th>Last updated</th>
+                    <th>Created</th>
                     <th>Members</th>
                 </tr>
             </thead>
@@ -20,7 +19,6 @@
                                 {{ object.name }}
                             </a>
                         </td>
-                        <td>{{ object.admin }}</td>
                         <td>{{ object.created_at }}</td>
                         <td>{{ object.git_users.count }}</td>
                         <td>

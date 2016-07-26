@@ -13,9 +13,10 @@ class GitUserForm(forms.ModelForm):
 
     class Meta:
         model = GitUser
-        fields = ['username']
+        fields = ['email']
 
-    username = forms.CharField(max_length=40)
+    email = forms.EmailField()
+    # username = forms.CharField(max_length=40)
 
 
 class GroupForm(forms.ModelForm):

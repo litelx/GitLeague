@@ -146,11 +146,8 @@ class UpdateGitUserView(LoggedInMixin, UpdateView):
         return GitUser.objects.get(id=self.kwargs['pk'])
 
     def form_valid(self, form):
-        user_name = form.instance.username
         form.save()
-        i = add_user_data(user_name)
-        messages.success(self.request, 'Git user: {}, has been updated'.format(form.instance.username))
-        return redirect('core:u_list')
+        return redirect('core:list')
 
 
 class GitUserListView(LoggedInMixin, ListView):
@@ -209,11 +206,10 @@ def delete_git_user(request, id):
     return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
 
-def delete_group_git_user(request, pk, id):
+def delete_user(request, id, pk):
     group = get_object_or_404(Group, pk=pk)
     user = GitUser.objects.filter(id=id).first()
-    user.groups.delete(group)
-    messages.success(request, 'The github user was deleted successfully')
+    user.groups.remove(group)
     return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
 
@@ -269,9 +265,18 @@ class UserDataListView(LoggedInMixin, ListView):
         return users_data_list
 
 
+class DeleteUserView(LoggedInMixin, View):
+    def post(self, request, *args, **kwargs):
+        group = get_object_or_404(Group, pk=kwargs['pk'])
+        Id = request.POST.get('id')
+        user = GitUser.objects.filter(id=Id).first()
+        user.groups.remove(group)
+        return JsonResponse({'idd': Id})
+        # HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
+
 class AddUserView(LoggedInMixin, View):
     def post(self, request, *args, **kwargs):
-        # if request.method == 'POST': #.get('username'):
         group = get_object_or_404(Group, pk=kwargs['pk'])
         user_name = request.POST.get('username')
 
@@ -286,14 +291,10 @@ class AddUserView(LoggedInMixin, View):
                     },
                     status=400,
                 )
-
-            user = GitUser(username=user_name)
-            user.full_clean()
-            user.save()
+            add_user_data(user_name)
+            user = GitUser.objects.filter(username=user_name).first()
 
         if not user.groups.filter(id=group.id).exists():
             user.groups.add(group)
 
-        return JsonResponse({
-            'username': user_name,
-        })
+        return JsonResponse({'username': user_name})

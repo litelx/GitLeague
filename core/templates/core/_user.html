@@ -1,12 +1,15 @@
 {% load humanize %}
 
-
-<li class="list-group-item">
-    <p>
-        <b>
-            {{ u }}
+<tr class="list-group-item">
+    <td style="width: 150px;">
+         <b>
+            <a href='/user_data/{{ u.id }}'>{{ u }}</a>
         </b>
-        <a href='delete_group_git_user/{{ u.id }}'>Delete</a>
-        <br>
-    </p>
-</li>
+    </td>
+    <td style="width: 250px;">
+        <strong>Email:</strong> <a href="/edit_git_user/{{ u.id }}">{{ u.email }}</a>
+    </td>
+    <td>
+        <a href='/edit_group/delete_user/{{ u.id }}/{{ object.pk }}' id="{{ u.id }}">Remove</a>
+    </td>
+</tr>

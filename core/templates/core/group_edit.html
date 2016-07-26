@@ -3,9 +3,9 @@
 
 {% block content %}
 
-    <a href="{% url "core:list" %}">Groups</a>
+    <a href="{% url 'core:list' %}">Groups</a>
     &gt;
-    Add users to group...
+    Edit group...    <a href='/users_data/{{ object.id }}'>View group's commits</a>
 
     <form method="post" enctype="multipart/form-data">
         {% csrf_token %}
@@ -16,16 +16,16 @@
             </button>
         {% endbuttons %}
     </form>
-    <ul class="list-group" id="users">
-        {% for u in object.git_users.all %}
-        <li>
-            {% include "core/_user.html" %}
-            {{u}}
-        </li>
-        {% endfor %}
-    </ul>
-    <form method="post" id="userform" action="{% url "core:add_user" object.id %}">
+    <table class="table table-bordered table-striped">
+        <tbody id="users">
+            <!--<ul class="list-group" >-->
+                {% for u in object.git_users.all %}
+                    {% include "core/_user.html" %}
+                {% endfor %}
 
+        </tbody>
+    </table>
+    <form method="post" id="userform" action="{% url "core:add_user" object.id %}">
         {% csrf_token %}
         <input type="text" id="id_username" name="username">
         {% buttons %}

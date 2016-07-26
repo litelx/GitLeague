@@ -1,83 +1,85 @@
 $(document).ready(function() {
-    alert('out of function');
+//    alert('out of function');
 
     $("#userform").on('submit', function(json) {
-        event.preventDefault();
         $.ajax({
             type:"POST",
-            url: '/edit_group/',
+            url: $(this).attr('action'),
             data: {
                 username: $("#id_username").val()
             },
-            success: function(json){
-                $("#users").prepend(data.username);
-            alert(" yes");
+            success: function(data){
+                // Check if already exists or new.
+                $("#users").append(data.username);
+                $("#id_username").val('');
             },
             error: function(){
-                alert(" no");
+                alert("something bad happened");
             }
         });
         return false;
-
-//        var form = $(this);
-//        var data = {
-//                username: $("#id_username").val()
-//            };
-//        $.post( function (resp) {
-//            var el = $(resp);
-//            alert(data.username+ " yes");
-//
-//        }).fail(function(resp) {
-//            console.error(resp.responseJSON);
-//            alert(data.username+ " no");
-//           /* $("#users").prepend(data.username);*/
-//            form.get(0).reset();
-//        });
-//        return false;
     });
-
 });
-/**
- * Created by litel on 10/07/16.
- */
-//$(document).ready(function() {
-//
-//    $("#adduform").submit(function () {
-//
-//        // $.ajax({
-//        //     type:"POST",
-//        //     url: '/edit_group/',
-//        //     data: {
-//        //         username: $("#id_username").val()
-//        //     },
-//        //     success: function(){
-//        //         $("#users").prepend(data.username);
-//        //         alert(url + " yes");
-//        //     },
-//        //     error: function(){
-//        //         alert(url + " no");
-//        //     }
-//        // });
-//        // return false;
-//
-//        var form = $(this);
-//        var data = {
-//            username: my_app //$("#id_username").val()
-//        };
-//        $.post( function (resp) {
-//            var el = $(resp);
-//            alert(data.username+ " yes");
-//            $("#users").prepend(el);
-//        }).fail(function(resp) {
-//            console.error(resp.responseJSON);
-//            alert(data.username+ " no");
-//            $("#users").prepend(data.username);
-//            form.get(0).reset();
+
+    /*
+
+        $("#commentform").submit(function () {
+        var form = $(this);
+        var data = {
+            title: $("#id_title").val(),
+            content: $("#id_content").val()
+        };
+        $.post("", data).then(function (resp) {
+            var el = $(resp);
+            $("#comments").prepend(el);
+            form.get(0).reset();
+        }).fail(function(resp) {
+            console.error(resp.responseJSON);
+            alert('something bad happend');
+        });
+
+
+
+
+
+
+
+    $('a').click(function (json) {
+        $.ajax({
+            type:"DELETE",
+            url: $(this).attr('action'),
+            data: {
+                id: 17,
+            },
+            success: function(data){
+//                $("users").remove(to_delete);
+//                $("#users").append($(this));
+                $("#id_username").val('');
+            },
+            error: function(){
+            }
+        });
+        return false;
+    });*/
+
+//    $("a").on('click', function(json) {
+//        $.ajax({
+//            type:"POST",
+//            url: $(this).attr('action'),
+//            data: {
+//                id: $(this).attr('id'),
+//            },
+//            success: function(data){
+////                $("#"+data.id).prev('li').remove();
+//                $(this).prev('li').remove();
+//                alert(data.idd);
+//                $("#id_username").val('');
+//            },
+//            error: function(){
+////                var dd = $("#{{u.id}}").attr('id');
+//                alert("something bad happened");
+//            }
 //        });
 //        return false;
 //    });
-//
-//});
-/**
- * Created by litel on 10/07/16.
- */
+

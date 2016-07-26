@@ -13,10 +13,14 @@ urlpatterns = [
     url(r'^add_group/$', views.CreateGroupView.as_view(), name="add"),
     url(r'^add_git_user/$', views.CreateGitUserView.as_view(), name="add_git"),
     url(r'^edit_group/(?P<pk>\d+)/$', views.UpdateGroupView.as_view(), name="group"),
-    url(r'^edit_group/(?P<pk>\d+)/add-user/$', views.AddUserView.as_view(), name="add_user"),
     url(r'^edit_git_user/(?P<pk>\d+)/$', views.UpdateGitUserView.as_view(), name="git_user"),
+    url(r'^edit_group/(?P<pk>\d+)/add-user/$', views.AddUserView.as_view(), name="add_user"),
 
     url(r'^delete_group/(?P<id>\d+)/$', delete_group, name='delete_group'),
+
+    url(r'^edit_group/delete_user/(?P<id>\d+)/(?P<pk>\d+)/$', delete_user, name='delete_user'),
+
     url(r'^git_users/delete_git_user/(?P<id>\d+)/$', delete_git_user, name='delete_git_user'),
-    url(r'^edit_group/(?P<pk>\d+)/delete_group_git_user/(?P<id>\d+)/$', delete_git_user, name='delete_git_user')
+    url(r'^edit_group/(?P<pk>\d+)/delete_group_git_user/$', views.DeleteUserView,
+        name='delete_group_user')
 ]
