@@ -15,7 +15,6 @@ class GitUser(models.Model):
         return self.username
 
     def get_absolute_url(self):
-        # return "/edit_git_user/%i/" % self.pk
         return reverse("core:git_user", args=[str(self.pk)])
 
 
@@ -25,7 +24,7 @@ class Group(models.Model):
                              verbose_name=_("owener"))
     name = models.CharField(_('name'), max_length=40)
     created_at = models.DateField(_('created_at'))
-    git_users = models.ManyToManyField(GitUser, null=True, blank=True, related_name='groups')
+    git_users = models.ManyToManyField(GitUser, blank=True, related_name='groups')
 
     def __str__(self):
         return self.name

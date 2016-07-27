@@ -8,8 +8,6 @@ from django.utils.encoding import escape_uri_path
 from django.views.generic import View
 from django.views.generic.edit import FormView, UpdateView
 from django.views.generic.list import ListView
-from django_extensions.db.fields import json
-
 from core.forms import *
 from core.github_content import *
 from core.models import *
@@ -80,39 +78,6 @@ class CreateGroupView(LoggedInMixin, FormView):
         return super().form_valid(form)
 
 
-class CreateGitUserView(LoggedInMixin, FormView):
-    page_title = 'Add user'
-    form_class = GitUserForm
-    template_name = "core/git_form.html"
-    success_url = reverse_lazy('core:u_list')
-
-    def dispatch(self, request, *args, **kwargs):
-        return super().dispatch(request, *args, **kwargs)
-
-    def form_valid(self, form):
-        user_name = form.instance.username
-        exist = GitUser.objects.filter(username=user_name)
-        if exist:
-            # if self.request.user in exist[0].user:
-            messages.error(self.request,
-                           'The github user "{}" is already in database. Please add another github user.'.format(
-                               user_name))
-            return HttpResponseRedirect(self.request.META.get('HTTP_REFERER'))
-
-        if is_git_user(user_name):
-            form.save()
-            i = add_user_data(user_name)
-            gu = GitUser.objects.filter(username=user_name)
-            gu.email = i[1]
-            gu.user.add(self.request.user)
-            messages.success(self.request, 'A new git user has been recorded with {} commits'.format(i[0]))
-        else:
-            messages.error(self.request,
-                           'There is no github user with username "{}". Sorry, try again'.format(user_name))
-            return HttpResponseRedirect(self.request.META.get('HTTP_REFERER'))
-        return super().form_valid(form)
-
-
 class UpdateGroupView(LoggedInMixin, UpdateView):
     form_class = GroupForm
     model = Group
@@ -159,8 +124,8 @@ class GitUserListView(LoggedInMixin, ListView):
         context = super(GitUserListView, self).get_context_data(**kwargs)
         return context
 
-        # def get_queryset(self):
-        #     return super().get_queryset().filter(user=self.request.user)
+    def get_queryset(self):
+        return super().get_queryset().filter(user=self.request.user)
 
 
 class DataListView(LoggedInMixin, ListView):
@@ -293,6 +258,7 @@ class AddUserView(LoggedInMixin, View):
             add_user_data(user_name)
             user = GitUser.objects.filter(username=user_name).first()
 
+        user.user.add(self.request.user)
         if not user.groups.filter(id=group.id).exists():
             user.groups.add(group)
         else:
@@ -301,3 +267,36 @@ class AddUserView(LoggedInMixin, View):
             'u': user,
             'object': group,
         })
+
+
+# class CreateGitUserView(LoggedInMixin, FormView):
+#     page_title = 'Add user'
+#     form_class = GitUserForm
+#     template_name = "core/git_form.html"
+#     success_url = reverse_lazy('core:u_list')
+#
+#     def dispatch(self, request, *args, **kwargs):
+#         return super().dispatch(request, *args, **kwargs)
+#
+#     def form_valid(self, form):
+#         user_name = form.instance.username
+#         exist = GitUser.objects.filter(username=user_name)
+#         if exist:
+#             # if self.request.user in exist[0].user:
+#             messages.error(self.request,
+#                            'The github user "{}" is already in database. Please add another github user.'.format(
+#                                user_name))
+#             return HttpResponseRedirect(self.request.META.get('HTTP_REFERER'))
+#
+#         if is_git_user(user_name):
+#             form.save()
+#             i = add_user_data(user_name)
+#             gu = GitUser.objects.filter(username=user_name)
+#             gu.email = i[1]
+#             gu.user.add(self.request.user)
+#             messages.success(self.request, 'A new git user has been recorded with {} commits'.format(i[0]))
+#         else:
+#             messages.error(self.request,
+#                            'There is no github user with username "{}". Sorry, try again'.format(user_name))
+#             return HttpResponseRedirect(self.request.META.get('HTTP_REFERER'))
+#         return super().form_valid(form)
