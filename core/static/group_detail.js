@@ -13,7 +13,7 @@ $(document).ready(function() {
             },
             error: function(msg){
                 alert("Something happen improperly. \n" +
-                        "User may already exist.");
+                        "User may not have github account or may already exist in group.");
             }
         });
         return false;
