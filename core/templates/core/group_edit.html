@@ -24,7 +24,7 @@
             <tr id="xx"></tr>
         </tbody>
     </table>
-    <form method="post" id="userform" action="{% url "core:add_user" object.id %}">
+    <form method="post" id="userform" action="{% url 'core:add_user' object.id %}">
         {% csrf_token %}
         <input type="text" id="id_username" name="username">
         {% buttons %}

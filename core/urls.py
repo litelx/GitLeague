@@ -21,6 +21,5 @@ urlpatterns = [
     url(r'^edit_group/delete_user/(?P<id>\d+)/(?P<pk>\d+)/$', delete_user, name='delete_user'),
 
     url(r'^git_users/delete_git_user/(?P<id>\d+)/$', delete_git_user, name='delete_git_user'),
-    url(r'^edit_group/(?P<pk>\d+)/delete_group_git_user/$', views.DeleteUserView,
-        name='delete_group_user')
+
 ]

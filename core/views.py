@@ -2,8 +2,8 @@ import datetime
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
 from django.core.urlresolvers import reverse_lazy
-from django.http.response import HttpResponseRedirect, HttpResponse, JsonResponse
-from django.shortcuts import redirect, render, get_object_or_404
+from django.http.response import HttpResponseRedirect, HttpResponse, JsonResponse, Http404
+from django.shortcuts import redirect, render, get_object_or_404, get_list_or_404
 from django.utils.encoding import escape_uri_path
 from django.views.generic import View
 from django.views.generic.edit import FormView, UpdateView
@@ -98,9 +98,7 @@ class CreateGitUserView(LoggedInMixin, FormView):
                            'The github user "{}" is already in database. Please add another github user.'.format(
                                user_name))
             return HttpResponseRedirect(self.request.META.get('HTTP_REFERER'))
-            # exist[0].user.add(self.request.user)
-            # form.instance.user = self.request.user
-            # form.save()
+
         if is_git_user(user_name):
             form.save()
             i = add_user_data(user_name)
@@ -116,12 +114,13 @@ class CreateGitUserView(LoggedInMixin, FormView):
 
 
 class UpdateGroupView(LoggedInMixin, UpdateView):
-    page_title = 'Edit group'
     form_class = GroupForm
     model = Group
     template_name = "core/group_edit.html"
-
     success_url = reverse_lazy('core:list')
+
+    def page_title(self):
+        return self.object.name
 
     def get_object(self, queryset=None):
         return Group.objects.get(id=self.kwargs['pk'])
@@ -133,11 +132,13 @@ class UpdateGroupView(LoggedInMixin, UpdateView):
 
 
 class UpdateGitUserView(LoggedInMixin, UpdateView):
-    page_title = 'Edit git user'
     form_class = GitUserForm
     model = GitUser
     template_name = 'core/git_user_edit.html'
     success_url = reverse_lazy('core:u_list')
+
+    def page_title(self):
+        return "Edit {}".format(self.object.username)
 
     def get_initial(self):
         return super().get_initial()
@@ -167,7 +168,8 @@ class DataListView(LoggedInMixin, ListView):
     model = Data
 
     def get_object(self):
-        return Group.objects.get(id=self.kwargs['pk'])
+        return get_object_or_404(Group, id=self.kwargs['pk'])
+        # return Group.objects.get(id=self.kwargs['pk'])
 
     def get_context_data(self, **kwargs):
         context = super(DataListView, self).get_context_data(**kwargs)
@@ -176,6 +178,9 @@ class DataListView(LoggedInMixin, ListView):
         return context
 
     def get_queryset(self):
+        if not get_object_or_404(Group, pk=self.kwargs['pk']).git_users:
+            return redirect('core:list')
+
         users_data_list = last_50(id=self.kwargs['pk'])[:50]
         if self.request.GET.get("browse"):
             selection = self.request.GET.get("browse")
@@ -215,9 +220,9 @@ def delete_user(request, id, pk):
 
 def last_50(id):
     users_data_list = Data.objects.filter(
-        gitUser=Group.objects.get(id=id).git_users.all()[0])
+        gitUser=get_object_or_404(Group, id=id).git_users.all()[0])
 
-    for t in Group.objects.get(id=id).git_users.all():
+    for t in get_object_or_404(Group, id=id).git_users.all():
         users_data_list |= Data.objects.filter(gitUser=t)
 
     users_data_list = users_data_list.order_by('-created_at')
@@ -260,19 +265,13 @@ class UserDataListView(LoggedInMixin, ListView):
     model = Data
 
     def get_queryset(self):
-        u = GitUser.objects.get(pk=self.kwargs['id'])
+        u = get_object_or_404(GitUser, pk=self.kwargs['id'])
         users_data_list = Data.objects.filter(gitUser=u).all()
+
+        if not users_data_list:
+            raise Http404("User has no commits activity.")
+
         return users_data_list
-
-
-class DeleteUserView(LoggedInMixin, View):
-    def post(self, request, *args, **kwargs):
-        group = get_object_or_404(Group, pk=kwargs['pk'])
-        Id = request.POST.get('id')
-        user = GitUser.objects.filter(id=Id).first()
-        user.groups.remove(group)
-        return JsonResponse({'idd': Id})
-        # HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
 
 class AddUserView(LoggedInMixin, View):
@@ -296,9 +295,9 @@ class AddUserView(LoggedInMixin, View):
 
         if not user.groups.filter(id=group.id).exists():
             user.groups.add(group)
-
-        return JsonResponse({'username': user_name,
-                             'email': user.email,
-                             'id': user.pk,
-                             'pk': kwargs['pk'],
-                             })
+        else:
+            return render(request, "")
+        return render(request, "core/_user.html", {
+            'u': user,
+            'object': group,
+        })
